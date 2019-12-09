@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "consolidate": "^0.15.1",
+    "express": "^4.17.1",
+    "handlebars": "^4.5.3",
+    "node": "^13.3.0",
+    "nodemon": "^2.0.1"
+  },
+  "scripts": {
+    "start:dev": "nodemon index.js"
+  }
+}
