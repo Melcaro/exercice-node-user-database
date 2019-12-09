@@ -6,6 +6,6 @@
     "nodemon": "^2.0.1"
   },
   "scripts": {
-    "start:dev": "nodemon index.js"
+    "start:dev": "nodemon moviesIndex.js"
   }
 }
