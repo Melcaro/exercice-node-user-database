@@ -1,15 +1,63 @@
 const express = require('express');
 const app = express();
 
-const users = require('./data/users.json');
-const engines = require('consolidate');
+const axios = require('axios');
 
-app.engine('hbs', engines.handlebars);
-app.set('view engine', 'hbs');
-app.set('views', './views');
+app.use(express.json());
+
+const url =
+  'https://www.jsonstore.io/ee10c67845a9a847e4c7183400f98e5a03df544a2cfe4cdca930b7e549c0bcff';
 
 app.get('/', function(req, res) {
-  res.render('index.hbs', { users });
+  res.send('hello');
+});
+
+app.post('/users', async function(req, res) {
+  console.log(req.body);
+  const userId = Date.now();
+  const { data } = await axios.post(`${url}/users/${userId}`, req.body, {
+    headers: { 'content-type': 'application/json' },
+  });
+  res.send(data);
+});
+
+app.get('/users', async function(req, res) {
+  const { data } = await axios.get(`${url}/users/`);
+  res.send(data);
+});
+
+app.get('/users/:userId', async function(req, res) {
+  const userId = req.params.userId;
+  const { data } = await axios.get(`${url}/users/${userId}`);
+  res.send(data);
+});
+
+app.put('/users/:userId', async function(req, res) {
+  const userId = req.params.userId;
+  const { data } = await axios.put(`${url}/users/${userId}/`, req.body, {
+    headers: { 'content-type': 'application/json' },
+  });
+  res.send(data);
+});
+
+app.patch('/users/:userId', async function(req, res) {
+  const userId = req.params.userId;
+  const { data } = await axios.put(
+    `${url}/users/${userId}/${req.body.field}`,
+    `"${req.body.value}"`,
+    {
+      headers: { 'content-type': 'application/json' },
+    }
+  );
+  res.send(data);
+});
+
+app.delete('/users/:userId', async function(req, res) {
+  const userId = req.params.userId;
+  const { data } = await axios.delete(`${url}/users/${userId}`, {
+    headers: { 'content-type': 'application/json' },
+  });
+  res.send(data);
 });
 
 app.listen(5200);
