@@ -1,4 +1,6 @@
 const express = require('express');
+const router = express.Router();
+
 const axios = require('axios');
 const app = express();
 
@@ -12,13 +14,29 @@ app.use(express.json());
 const url =
   'https://www.jsonstore.io/ee10c67845a9a847e4c7183400f98e5a03df544a2cfe4cdca930b7e549c0bcff';
 
-const doesMovieExist = async (req, res, next) => {
+const doesMovieExist = (req, res, next) => {
   const movieId = req.params.movieId;
   const {
     data: { result },
-  } = await axios.get(`${url}/movies/${movieId}`);
+  } = axios.get(`${url}/movies/${movieId}`);
   result ? next() : res.redirect(`/error/movie/${movieId}`);
 };
+
+app.use('*', async function(req, res, next) {
+  const queryId = Date.now();
+  const { data } = await axios.post(
+    `${url}/query/${queryId}`,
+    {
+      verb: `${req.method}`,
+      ipAddress: `${req.ip}`,
+      params: `${JSON.stringify(req.params)}`,
+      path: `${req.originalUrl}`,
+      body: `${JSON.stringify(req.body)}`,
+    },
+    { headers: { 'content-type': 'application/json' } }
+  );
+  next();
+});
 
 app.get('/error/movie/:movieId', (req, res) => {
   res.status(404).send(`No movie with this id : ${req.params.movieId}`);
