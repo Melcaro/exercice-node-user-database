@@ -1,0 +1,223 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "basePath": "",
+
+  "schemes": ["https", "http"],
+  "paths": {
+    "/movies": {
+      "post": {
+        "tags": ["movies"],
+        "summary": "Add a new movie on the database",
+        "description": "",
+        "operationId": "addMovie",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "enter the movie title",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/movies/{movieId}": {
+      "put": {
+        "tags": ["movie"],
+        "summary": "Update an existing movie",
+        "description": "",
+        "operationId": "updateMovie",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "id": "movieId",
+            "name": "movieId",
+            "description": "",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Movie"
+            }
+          },
+          {
+            "id": "field",
+            "name": "field",
+            "description": "Field you want to change",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Movie"
+            }
+          },
+          {
+            "id": "value",
+            "name": "value",
+            "description": "The new value you want to give to the field",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Movie"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Movie not found"
+          },
+          "405": {
+            "description": "Validation exception"
+          }
+        }
+      },
+      "get": {
+        "tags": ["movie"],
+        "summary": "Find movie by ID",
+        "description": "Returns a single movie",
+        "operationId": "getMovieById",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "description": "ID of movie to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/movieId"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Movie not found"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["movie"],
+        "summary": "Updates a movie ",
+        "description": "",
+        "operationId": "updateMovie",
+        "consumes": ["application/x-www-form-urlencoded"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "description": "ID of movie that needs to be updated",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "field",
+            "in": "formData",
+            "description": "Field you want to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "value",
+            "in": "formData",
+            "description": "The new value of the field",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["movie"],
+        "summary": "Deletes a movie",
+        "description": "",
+        "operationId": "deleteMovie",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "movieId",
+            "in": "path",
+            "description": "Movie id to delete",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Movie not found"
+          }
+        },
+        "definitions": {
+          "movieId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "Movie": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          }
+        },
+
+        "ApiResponse": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "type": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

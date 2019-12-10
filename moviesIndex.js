@@ -2,15 +2,54 @@ const express = require('express');
 const axios = require('axios');
 const app = express();
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 app.use(express.json());
 
 const url =
   'https://www.jsonstore.io/ee10c67845a9a847e4c7183400f98e5a03df544a2cfe4cdca930b7e549c0bcff';
 
+const doesMovieExist = async (req, res, next) => {
+  const movieId = req.params.movieId;
+  const {
+    data: { result },
+  } = await axios.get(`${url}/movies/${movieId}`);
+  result ? next() : res.redirect(`/error/movie/${movieId}`);
+};
+
+app.get('/error/movie/:movieId', (req, res) => {
+  res.status(404).send(`No movie with this id : ${req.params.movieId}`);
+});
+
 app.get('/', function(req, res) {
   res.send('hello');
   console.log('server launched');
 });
+
+const asyncRoute = asyncFunction => async (req, res, next) => {
+  try {
+    await asyncFunction(req, res, next);
+  } catch (e) {
+    res.redirect('/error/movies');
+    // OU
+    // next()
+  }
+};
+
+app.get('/error/movies', (req, res) => {
+  res.status(404).send(`EError`);
+});
+
+app.get(
+  '/movies',
+  asyncRoute(async (req, res) => {
+    const { data } = await axios.get(`${url}/movies`);
+    res.send(data);
+  })
+);
 
 app.post('/movies', async function(req, res) {
   const movieId = Date.now();
@@ -23,18 +62,13 @@ app.post('/movies', async function(req, res) {
   res.send(data);
 });
 
-app.get('/movies', async function(req, res) {
-  const { data } = await axios.get(`${url}/movies`);
-  res.send(data);
-});
-
-app.get('/movies/:movieId', async function(req, res) {
+app.get('/movies/:movieId', doesMovieExist, async function(req, res) {
   const movieId = req.params.movieId;
   const { data } = await axios.get(`${url}/movies/${movieId}`);
   res.send(data);
 });
 
-app.put('/movies/:movieId', async function(req, res) {
+app.put('/movies/:movieId', doesMovieExist, async function(req, res) {
   const movieId = req.params.movieId;
   const { data } = await axios.put(`${url}/movies/${movieId}`, req.body, {
     headers: { 'content-type': 'application/json' },
@@ -43,7 +77,7 @@ app.put('/movies/:movieId', async function(req, res) {
   res.send(data);
 });
 
-app.patch('/movies/:movieId', async function(req, res) {
+app.patch('/movies/:movieId', doesMovieExist, async function(req, res) {
   const movieId = req.params.movieId;
   const { data } = await axios.put(
     `${url}/movies/${movieId}/${req.body.field}`,
@@ -53,12 +87,16 @@ app.patch('/movies/:movieId', async function(req, res) {
   res.send(data);
 });
 
-app.delete('movies/:movieId', async function(req, res) {
+app.delete('/movies/:movieId', doesMovieExist, async function(req, res) {
   const movieId = req.params.movieId;
   const { data } = await axios.delete(`${url}/movies/${movieId}`, {
     headers: { 'content-type': 'application/json' },
   });
   res.send(data);
+});
+
+app.all('*', (req, res) => {
+  res.send('error');
 });
 
 app.listen(5300);
